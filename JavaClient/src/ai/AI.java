@@ -10,11 +10,16 @@ import ks.models.World;
 import team.koala.chillin.client.RealtimeAI;
 
 public class AI extends RealtimeAI<World, KSObject> {
-    private EDirection dir = EDirection.Down;
+    private EDirection dir;
 	private int cycleCnt = 0;
 
     public AI(World world) {
         super(world);
+        if(world.getBoard().get(world.getAgents().get(this.mySide).getPosition().getY() - 1).get(world.getAgents().get(this.mySide).getPosition().getX()) == ECell.AreaWall) {
+            dir = EDirection.Down;
+        } else {
+            dir = EDirection.Up;
+        }
     }
 
     @Override
