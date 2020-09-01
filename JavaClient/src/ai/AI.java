@@ -13,6 +13,7 @@ import team.koala.chillin.client.RealtimeAI;
 public class AI extends RealtimeAI<World, KSObject> {
     private EDirection dir;
 
+
     public AI(World world) {
         super(world);
 
@@ -20,6 +21,12 @@ public class AI extends RealtimeAI<World, KSObject> {
 
     @Override
     public void initialize() {
+        if (world.getBoard().get(world.getAgents().get(this.mySide).getPosition().getY() - 1).get(world.getAgents().get(this.mySide).getPosition().getX()) == ECell.AreaWall) {
+            dir = EDirection.Down;
+        } else {
+            dir = EDirection.Up;
+        }
+        changeDirection(dir);
         System.out.println("initialize");
         System.out.println(world.getAgents().get(this.mySide).getPosition().getX());
     }
@@ -129,6 +136,47 @@ public class AI extends RealtimeAI<World, KSObject> {
         }
 
         changeDirection(dir);
+        cycleCnt++;
+        areaWallCheck();
+        agentWallCheck();
+        System.out.println("decide");
+        changeDirection(dir);
+    }
+
+    private void agentWallCheck() {
+        int x = world.getAgents().get(this.mySide).getPosition().getX();
+        int y = world.getAgents().get(this.mySide).getPosition().getY();
+        if (dir == EDirection.Up) {
+            if (world.getBoard().get(y - 1).get(x) == ECell.YellowWall || world.getBoard().get(y - 1).get(x) == ECell.BlueWall)
+                ActivateWallBreaker();
+        } else if(dir == EDirection.Down) {
+            if (world.getBoard().get(y + 1).get(x) == ECell.YellowWall || world.getBoard().get(y + 1).get(x) == ECell.BlueWall)
+                ActivateWallBreaker();
+        } else if(dir == EDirection.Right) {
+            if (world.getBoard().get(y).get(x + 1) == ECell.YellowWall || world.getBoard().get(y).get(x + 1) == ECell.BlueWall)
+                ActivateWallBreaker();
+        } else if(dir == EDirection.Left) {
+            if (world.getBoard().get(y).get(x - 1) == ECell.YellowWall || world.getBoard().get(y).get(x - 1) == ECell.BlueWall)
+                ActivateWallBreaker();
+        }
+    }
+
+    private void areaWallCheck() {
+        int x = world.getAgents().get(this.mySide).getPosition().getX();
+        int y = world.getAgents().get(this.mySide).getPosition().getY();
+        if (dir == EDirection.Up) {
+            if (world.getBoard().get(y - 1).get(x) == ECell.AreaWall)
+                dir = (world.getBoard().get(y).get(x + 1) == ECell.AreaWall) ? EDirection.Left : EDirection.Right;
+        } else if(dir == EDirection.Down) {
+            if (world.getBoard().get(y + 1).get(x) == ECell.AreaWall)
+                dir = (world.getBoard().get(y).get(x + 1) == ECell.AreaWall) ? EDirection.Left : EDirection.Right;
+        } else if(dir == EDirection.Right) {
+            if (world.getBoard().get(y).get(x + 1) == ECell.AreaWall)
+                dir = (world.getBoard().get(y + 1).get(x) == ECell.AreaWall) ? EDirection.Up : EDirection.Down;
+        } else if(dir == EDirection.Left) {
+            if (world.getBoard().get(y).get(x - 1) == ECell.AreaWall)
+                dir = (world.getBoard().get(y + 1).get(x) == ECell.AreaWall) ? EDirection.Up : EDirection.Down;
+        }
     }
 
 
