@@ -33,8 +33,7 @@ public class AI extends RealtimeAI<World, KSObject> {
         boolean choseWisely = false;
 
         //brake nearby enemy walls
-        if (world.getAgents().get(this.mySide).getWallBreakerCooldown() == 0 || world.getAgents().get(this.mySide).getWallBreakerRemTime() != 0) {
-
+        if (world.getAgents().get(this.mySide).getWallBreakerCooldown() == 0 || world.getAgents().get(this.mySide).getWallBreakerRemTime() > 1) {
             if (world.getBoard().get(currentY + 1).get(currentX) == enemyColour) {
                 choseWisely = true;
                 dir = EDirection.Down;
@@ -74,23 +73,22 @@ public class AI extends RealtimeAI<World, KSObject> {
                     }
                 }
             }
-            System.out.println(nearestY + " " + nearestX);
-            if (nearestY > currentY && world.getBoard().get(currentY + 1).get(currentX) == ECell.Empty) {
-                choseWisely = true;
-                dir = EDirection.Down;
-            }
-            if (nearestY < currentY && world.getBoard().get(currentY - 1).get(currentX) == ECell.Empty) {
-                choseWisely = true;
-                dir = EDirection.Up;
-            }
-            if (nearestX > currentX && world.getBoard().get(currentY).get(currentX + 1) == ECell.Empty) {
-                choseWisely = true;
-                dir = EDirection.Right;
-            }
-            if (nearestX < currentX && world.getBoard().get(currentY).get(currentX - 1) == ECell.Empty) {
-                choseWisely = true;
-                dir = EDirection.Left;
-            }
+                if (nearestY > currentY && world.getBoard().get(currentY + 1).get(currentX) == ECell.Empty) {
+                    choseWisely = true;
+                    dir = EDirection.Down;
+                }
+                if (nearestY < currentY && world.getBoard().get(currentY - 1).get(currentX) == ECell.Empty) {
+                    choseWisely = true;
+                    dir = EDirection.Up;
+                }
+                if (nearestX > currentX && world.getBoard().get(currentY).get(currentX + 1) == ECell.Empty) {
+                    choseWisely = true;
+                    dir = EDirection.Right;
+                }
+                if (nearestX < currentX && world.getBoard().get(currentY).get(currentX - 1) == ECell.Empty) {
+                    choseWisely = true;
+                    dir = EDirection.Left;
+                }
 
         }
 
@@ -122,13 +120,13 @@ public class AI extends RealtimeAI<World, KSObject> {
             if (world.getBoard().get(currentY + 1).get(currentX) != ECell.AreaWall)
                 dir = EDirection.Down;
 
-            if (world.getBoard().get(currentY - 1).get(currentX) == ECell.AreaWall)
+            if (world.getBoard().get(currentY - 1).get(currentX) != ECell.AreaWall)
                 dir = EDirection.Up;
 
-            if (world.getBoard().get(currentY).get(currentX + 1) == ECell.AreaWall)
+            if (world.getBoard().get(currentY).get(currentX + 1) != ECell.AreaWall)
                 dir = EDirection.Right;
 
-            if (world.getBoard().get(currentY).get(currentX - 1) == ECell.AreaWall)
+            if (world.getBoard().get(currentY).get(currentX - 1) != ECell.AreaWall)
                 dir = EDirection.Left;
 
         }
