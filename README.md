@@ -13,8 +13,9 @@
    ```
 4. I will review and merge changes.
 
-to run : 
+## Run
+
 1. Build with IntelliJ idead
 ```
-sh run.sh
+2. $ sh run.sh
 ```
