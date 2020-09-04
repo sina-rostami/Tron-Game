@@ -15,7 +15,7 @@
 
 ## Run
 
-1. Build with IntelliJ idead
+1. Build with IntelliJ idea
 ```
 2. $ sh run.sh
 ```
