@@ -6,7 +6,6 @@ import ks.commands.ChangeDirection;
 import ks.commands.ECommandDirection;
 import ks.models.ECell;
 import ks.models.EDirection;
-import ks.models.Position;
 import ks.models.World;
 import team.koala.chillin.client.RealtimeAI;
 
@@ -139,47 +138,6 @@ public class AI extends RealtimeAI<World, KSObject> {
         }
 
         changeDirection(dir);
-        cycleCnt++;
-        areaWallCheck();
-        agentWallCheck();
-        System.out.println("decide");
-        changeDirection(dir);
-    }
-
-    private void agentWallCheck() {
-        int x = world.getAgents().get(this.mySide).getPosition().getX();
-        int y = world.getAgents().get(this.mySide).getPosition().getY();
-        if (dir == EDirection.Up) {
-            if (world.getBoard().get(y - 1).get(x) == ECell.YellowWall || world.getBoard().get(y - 1).get(x) == ECell.BlueWall)
-                ActivateWallBreaker();
-        } else if(dir == EDirection.Down) {
-            if (world.getBoard().get(y + 1).get(x) == ECell.YellowWall || world.getBoard().get(y + 1).get(x) == ECell.BlueWall)
-                ActivateWallBreaker();
-        } else if(dir == EDirection.Right) {
-            if (world.getBoard().get(y).get(x + 1) == ECell.YellowWall || world.getBoard().get(y).get(x + 1) == ECell.BlueWall)
-                ActivateWallBreaker();
-        } else if(dir == EDirection.Left) {
-            if (world.getBoard().get(y).get(x - 1) == ECell.YellowWall || world.getBoard().get(y).get(x - 1) == ECell.BlueWall)
-                ActivateWallBreaker();
-        }
-    }
-
-    private void areaWallCheck() {
-        int x = world.getAgents().get(this.mySide).getPosition().getX();
-        int y = world.getAgents().get(this.mySide).getPosition().getY();
-        if (dir == EDirection.Up) {
-            if (world.getBoard().get(y - 1).get(x) == ECell.AreaWall)
-                dir = (world.getBoard().get(y).get(x + 1) == ECell.AreaWall) ? EDirection.Left : EDirection.Right;
-        } else if(dir == EDirection.Down) {
-            if (world.getBoard().get(y + 1).get(x) == ECell.AreaWall)
-                dir = (world.getBoard().get(y).get(x + 1) == ECell.AreaWall) ? EDirection.Left : EDirection.Right;
-        } else if(dir == EDirection.Right) {
-            if (world.getBoard().get(y).get(x + 1) == ECell.AreaWall)
-                dir = (world.getBoard().get(y + 1).get(x) == ECell.AreaWall) ? EDirection.Up : EDirection.Down;
-        } else if(dir == EDirection.Left) {
-            if (world.getBoard().get(y).get(x - 1) == ECell.AreaWall)
-                dir = (world.getBoard().get(y + 1).get(x) == ECell.AreaWall) ? EDirection.Up : EDirection.Down;
-        }
     }
 
 
