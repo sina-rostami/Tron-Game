@@ -79,19 +79,19 @@ public class AI extends RealtimeAI<World, KSObject> {
     }
 
     private boolean findNearestEmptyCell(int currentX, int currentY) {
-        if (world.getBoard().get(currentY + 1).get(currentX) == ECell.Empty) {
+        if (world.getBoard().get(currentY + 1).get(currentX) == ECell.Empty && dir != EDirection.Up) {
             dir = EDirection.Down;
             return true;
         }
-        if (world.getBoard().get(currentY - 1).get(currentX) == ECell.Empty) {
+        if (world.getBoard().get(currentY - 1).get(currentX) == ECell.Empty && dir != EDirection.Down) {
             dir = EDirection.Up;
             return true;
         }
-        if (world.getBoard().get(currentY).get(currentX + 1) == ECell.Empty) {
+        if (world.getBoard().get(currentY).get(currentX + 1) == ECell.Empty && dir != EDirection.Left) {
             dir = EDirection.Right;
             return true;
         }
-        if (world.getBoard().get(currentY).get(currentX - 1) == ECell.Empty) {
+        if (world.getBoard().get(currentY).get(currentX - 1) == ECell.Empty && dir != EDirection.Right) {
             dir = EDirection.Left;
             return true;
         }
@@ -111,19 +111,19 @@ public class AI extends RealtimeAI<World, KSObject> {
                 }
             }
         }
-        if (nearestY > currentY && world.getBoard().get(currentY + 1).get(currentX) == ECell.Empty) {
+        if (nearestY > currentY && world.getBoard().get(currentY + 1).get(currentX) == ECell.Empty && dir != EDirection.Up) {
             dir = EDirection.Down;
             return true;
         }
-        if (nearestY < currentY && world.getBoard().get(currentY - 1).get(currentX) == ECell.Empty) {
+        if (nearestY < currentY && world.getBoard().get(currentY - 1).get(currentX) == ECell.Empty && dir != EDirection.Down) {
             dir = EDirection.Up;
             return true;
         }
-        if (nearestX > currentX && world.getBoard().get(currentY).get(currentX + 1) == ECell.Empty) {
+        if (nearestX > currentX && world.getBoard().get(currentY).get(currentX + 1) == ECell.Empty && dir != EDirection.Left) {
             dir = EDirection.Right;
             return true;
         }
-        if (nearestX < currentX && world.getBoard().get(currentY).get(currentX - 1) == ECell.Empty) {
+        if (nearestX < currentX && world.getBoard().get(currentY).get(currentX - 1) == ECell.Empty && dir != EDirection.Right) {
             dir = EDirection.Left;
             return true;
         }
@@ -132,23 +132,23 @@ public class AI extends RealtimeAI<World, KSObject> {
 
     private boolean breakNearbyEnemyWalls(int currentX, int currentY) {
         if (world.getAgents().get(this.mySide).getWallBreakerCooldown() == 0 || world.getAgents().get(this.mySide).getWallBreakerRemTime() > 1) {
-            if (world.getBoard().get(currentY + 1).get(currentX) == enemyCell) {
+            if (world.getBoard().get(currentY + 1).get(currentX) == enemyCell && dir != EDirection.Up) {
                 if (world.getAgents().get(this.mySide).getWallBreakerCooldown() == 0) ActivateWallBreaker();
                 dir = EDirection.Down;
                 return true;
             }
 
-            if (world.getBoard().get(currentY - 1).get(currentX) == enemyCell) {
+            if (world.getBoard().get(currentY - 1).get(currentX) == enemyCell && dir != EDirection.Down) {
                 if (world.getAgents().get(this.mySide).getWallBreakerCooldown() == 0) ActivateWallBreaker();
                 dir = EDirection.Up;
                 return true;
             }
-            if (world.getBoard().get(currentY).get(currentX + 1) == enemyCell) {
+            if (world.getBoard().get(currentY).get(currentX + 1) == enemyCell && dir != EDirection.Left) {
                 if (world.getAgents().get(this.mySide).getWallBreakerCooldown() == 0) ActivateWallBreaker();
                 dir = EDirection.Right;
                 return true;
             }
-            if (world.getBoard().get(currentY).get(currentX - 1) == enemyCell) {
+            if (world.getBoard().get(currentY).get(currentX - 1) == enemyCell && dir != EDirection.Right) {
                 if (world.getAgents().get(this.mySide).getWallBreakerCooldown() == 0) ActivateWallBreaker();
                 dir = EDirection.Left;
                 return true;
