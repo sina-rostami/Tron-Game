@@ -9,6 +9,9 @@ import ks.models.EDirection;
 import ks.models.World;
 import team.koala.chillin.client.RealtimeAI;
 
+import java.io.*;
+import java.util.*;
+
 public class AI extends RealtimeAI<World, KSObject> {
     private EDirection dir;
     private ECell enemyCell;
@@ -32,6 +35,7 @@ public class AI extends RealtimeAI<World, KSObject> {
     public void decide() {
         int currentX = world.getAgents().get(this.mySide).getPosition().getX();
         int currentY = world.getAgents().get(this.mySide).getPosition().getY();
+
         boolean chooseWisely = false;
 
         //break nearby enemy walls
@@ -51,6 +55,9 @@ public class AI extends RealtimeAI<World, KSObject> {
 
         changeDirection(dir);
     }
+    private int BFS(int locationX,int locationY){
+
+    }
 
     private void beCarefulForAreaWalls(int currentX, int currentY) {
         if (world.getAgents().get(this.mySide).getWallBreakerCooldown() == 0)
@@ -67,29 +74,30 @@ public class AI extends RealtimeAI<World, KSObject> {
 
         if (world.getBoard().get(currentY).get(currentX - 1) != ECell.AreaWall)
             dir = EDirection.Left;
+
     }
 
-    private boolean findNearestEmptyCell(int currentX, int currentY, boolean chooseWisely) {
+    private boolean findNearestEmptyCell(int currentX, int currentY) {
         if (world.getBoard().get(currentY + 1).get(currentX) == ECell.Empty) {
-            chooseWisely = true;
             dir = EDirection.Down;
+            return true;
         }
         if (world.getBoard().get(currentY - 1).get(currentX) == ECell.Empty) {
-            chooseWisely = true;
             dir = EDirection.Up;
+            return true;
         }
         if (world.getBoard().get(currentY).get(currentX + 1) == ECell.Empty) {
-            chooseWisely = true;
             dir = EDirection.Right;
+            return true;
         }
         if (world.getBoard().get(currentY).get(currentX - 1) == ECell.Empty) {
-            chooseWisely = true;
             dir = EDirection.Left;
+            return true;
         }
-        return chooseWisely;
+        return false;
     }
 
-    private boolean findNearestEnemyWall(int currentX, int currentY, boolean choseWisely) {
+    private boolean findNearestEnemyWall(int currentX, int currentY) {
         int nearestX = 1, nearestY = 1, minDistance = 10000000;
 
         for (int i = 0; i < world.getBoard().size(); i++) {
@@ -103,49 +111,49 @@ public class AI extends RealtimeAI<World, KSObject> {
             }
         }
         if (nearestY > currentY && world.getBoard().get(currentY + 1).get(currentX) == ECell.Empty) {
-            choseWisely = true;
             dir = EDirection.Down;
+            return true;
         }
         if (nearestY < currentY && world.getBoard().get(currentY - 1).get(currentX) == ECell.Empty) {
-            choseWisely = true;
             dir = EDirection.Up;
+            return true;
         }
         if (nearestX > currentX && world.getBoard().get(currentY).get(currentX + 1) == ECell.Empty) {
-            choseWisely = true;
             dir = EDirection.Right;
+            return true;
         }
         if (nearestX < currentX && world.getBoard().get(currentY).get(currentX - 1) == ECell.Empty) {
-            choseWisely = true;
             dir = EDirection.Left;
+            return true;
         }
-        return choseWisely;
+        return false;
     }
 
-    private boolean breakNearbyEnemyWalls(int currentX, int currentY, boolean choseWisely) {
+    private boolean breakNearbyEnemyWalls(int currentX, int currentY) {
         if (world.getAgents().get(this.mySide).getWallBreakerCooldown() == 0 || world.getAgents().get(this.mySide).getWallBreakerRemTime() > 1) {
             if (world.getBoard().get(currentY + 1).get(currentX) == enemyCell) {
-                choseWisely = true;
+                if (world.getAgents().get(this.mySide).getWallBreakerCooldown() == 0) ActivateWallBreaker();
                 dir = EDirection.Down;
-                if (world.getAgents().get(this.mySide).getWallBreakerCooldown() == 0) ActivateWallBreaker();
+                return true;
             }
-            if (world.getBoard().get(currentY - 1).get(currentX) == enemyCell) {
-                choseWisely = true;
-                dir = EDirection.Up;
-                if (world.getAgents().get(this.mySide).getWallBreakerCooldown() == 0) ActivateWallBreaker();
 
+            if (world.getBoard().get(currentY - 1).get(currentX) == enemyCell) {
+                if (world.getAgents().get(this.mySide).getWallBreakerCooldown() == 0) ActivateWallBreaker();
+                dir = EDirection.Up;
+                return true;
             }
-            if (world.getBoard().get(currentY).get(currentX + 1) == enemyCell) {
-                choseWisely = true;
+            if (world.getBoard().get(currentY).get(currentX + 1) == enemyColour) {
+                if (world.getAgents().get(this.mySide).getWallBreakerCooldown() == 0) ActivateWallBreaker();
                 dir = EDirection.Right;
-                if (world.getAgents().get(this.mySide).getWallBreakerCooldown() == 0) ActivateWallBreaker();
+                return true;
             }
-            if (world.getBoard().get(currentY).get(currentX - 1) == enemyCell) {
-                choseWisely = true;
-                dir = EDirection.Left;
+            if (world.getBoard().get(currentY).get(currentX - 1) == enemyColour) {
                 if (world.getAgents().get(this.mySide).getWallBreakerCooldown() == 0) ActivateWallBreaker();
+                dir = EDirection.Left;
+                return true;
             }
         }
-        return choseWisely;
+        return false;
     }
 
 
