@@ -63,17 +63,17 @@ public class AI extends RealtimeAI<World, KSObject> {
     private void beCarefulForAreaWalls(int currentX, int currentY) {
         if (world.getAgents().get(this.mySide).getWallBreakerCooldown() == 0)
             ActivateWallBreaker();
-        
-        if (world.getBoard().get(currentY + 1).get(currentX) != ECell.AreaWall)
+
+        if (world.getBoard().get(currentY + 1).get(currentX) != ECell.AreaWall && dir != EDirection.Up)
             dir = EDirection.Down;
 
-        if (world.getBoard().get(currentY - 1).get(currentX) != ECell.AreaWall)
+        if (world.getBoard().get(currentY - 1).get(currentX) != ECell.AreaWall && dir != EDirection.Down)
             dir = EDirection.Up;
 
-        if (world.getBoard().get(currentY).get(currentX + 1) != ECell.AreaWall)
+        if (world.getBoard().get(currentY).get(currentX + 1) != ECell.AreaWall && dir != EDirection.Left)
             dir = EDirection.Right;
 
-        if (world.getBoard().get(currentY).get(currentX - 1) != ECell.AreaWall)
+        if (world.getBoard().get(currentY).get(currentX - 1) != ECell.AreaWall && dir != EDirection.Right)
             dir = EDirection.Left;
 
     }
