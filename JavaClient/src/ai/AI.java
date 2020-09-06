@@ -9,8 +9,6 @@ import ks.models.EDirection;
 import ks.models.World;
 import team.koala.chillin.client.RealtimeAI;
 
-import java.io.*;
-import java.util.*;
 
 public class AI extends RealtimeAI<World, KSObject> {
     private EDirection dir;
@@ -39,15 +37,15 @@ public class AI extends RealtimeAI<World, KSObject> {
         boolean chooseWisely = false;
 
         //break nearby enemy walls
-        chooseWisely = breakNearbyEnemyWalls(currentX, currentY, chooseWisely);
+        chooseWisely = breakNearbyEnemyWalls(currentX, currentY);
 
         // Find nearest enemy wall
         if (chooseWisely == false)
-            chooseWisely = findNearestEnemyWall(currentX, currentY, chooseWisely);
+            chooseWisely = findNearestEnemyWall(currentX, currentY);
 
         // Find empty nearby cell
         if (chooseWisely == false)
-            chooseWisely = findNearestEmptyCell(currentX, currentY, chooseWisely);
+            chooseWisely = findNearestEmptyCell(currentX, currentY);
 
         // Be careful for area walls
         if (chooseWisely == false)
@@ -57,6 +55,9 @@ public class AI extends RealtimeAI<World, KSObject> {
     }
     private int BFS(int locationX,int locationY){
 
+
+        // todo : delete this after implementing method
+        return 0;
     }
 
     private void beCarefulForAreaWalls(int currentX, int currentY) {
@@ -142,12 +143,12 @@ public class AI extends RealtimeAI<World, KSObject> {
                 dir = EDirection.Up;
                 return true;
             }
-            if (world.getBoard().get(currentY).get(currentX + 1) == enemyColour) {
+            if (world.getBoard().get(currentY).get(currentX + 1) == enemyCell) {
                 if (world.getAgents().get(this.mySide).getWallBreakerCooldown() == 0) ActivateWallBreaker();
                 dir = EDirection.Right;
                 return true;
             }
-            if (world.getBoard().get(currentY).get(currentX - 1) == enemyColour) {
+            if (world.getBoard().get(currentY).get(currentX - 1) == enemyCell) {
                 if (world.getAgents().get(this.mySide).getWallBreakerCooldown() == 0) ActivateWallBreaker();
                 dir = EDirection.Left;
                 return true;
