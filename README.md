@@ -12,3 +12,10 @@
    $ git push origin 'branch name'
    ```
 4. I will review and merge changes.
+
+## Run
+
+1. Build with IntelliJ idea
+```
+2. $ sh run.sh
+```
