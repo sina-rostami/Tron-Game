@@ -9,6 +9,8 @@ import ks.models.EDirection;
 import ks.models.World;
 import team.koala.chillin.client.RealtimeAI;
 
+import javax.swing.*;
+import javax.swing.text.EditorKit;
 import java.util.Arrays;
 
 
@@ -33,11 +35,18 @@ public class AI extends RealtimeAI<World, KSObject> {
         System.out.println("initialize");
     }
 
+    // todo : dfs time
+    // todo : add cooldown to dfs
+    // todo : add bfs to find nearest enemy wall
+    // todo : suicide when ahead
+    // todo : go for shakh to shack when ahead
+    
     @Override
     public void decide() {
         int currentX = world.getAgents().get(this.mySide).getPosition().getX();
         int currentY = world.getAgents().get(this.mySide).getPosition().getY();
         int wallBeakerRem = world.getConstants().getWallBreakerDuration();
+        dir = world.getAgents().get(mySide).getDirection();
 
         if (world.getAgents().get(mySide).getWallBreakerRemTime() != 0)
             wallBeakerRem = world.getAgents().get(mySide).getWallBreakerRemTime();
@@ -47,71 +56,74 @@ public class AI extends RealtimeAI<World, KSObject> {
 
         DFS(currentY, currentX, wallBeakerRem, 0, 0, world.getAgents().get(mySide).getHealth(), dir);
 
-        ShakhToShakhCheck(dir, currentX, currentY);
+        if (world.getScores().get(mySide) <= world.getScores().get(otherSide))
+            ShakhToShakhCheck(currentX, currentY);
 
         WallBeakerCheck(currentX, currentY);
 
         changeDirection(dir);
     }
 
-    private void ShakhToShakhCheck(EDirection nextDir, int currentX, int currentY) {
-        if((nextDir == EDirection.Down && world.getAgents().get(otherSide).getPosition().getY() == currentY + 2 && world.getAgents().get(otherSide).getPosition().getX() == currentX) ||
-                (nextDir == EDirection.Up && world.getAgents().get(otherSide).getPosition().getY() == currentY - 2 && world.getAgents().get(otherSide).getPosition().getX() == currentX)) {
-            if(world.getBoard().get(currentY).get(currentX + 1) == ECell.Empty) {
-                dir = EDirection.Right;
-                return;
-            }
-            if(world.getBoard().get(currentY).get(currentX - 1) == ECell.Empty) {
+    private void ShakhToShakhCheck(int currentX, int currentY) {
+        if (dir == EDirection.Down) currentY += 1;
+        if (dir == EDirection.Up) currentY -= 1;
+        if (dir == EDirection.Right) currentX += 1;
+        if (dir == EDirection.Left) currentX -= 1;
+
+        if ((world.getAgents().get(otherSide).getPosition().getY() + 1 == currentY || world.getAgents().get(otherSide).getPosition().getY() - 1 == currentY) && world.getAgents().get(otherSide).getPosition().getX() == currentX) {
+            currentX = world.getAgents().get(this.mySide).getPosition().getX();
+            currentY = world.getAgents().get(this.mySide).getPosition().getY();
+            if (dir != EDirection.Down && world.getAgents().get(mySide).getDirection() != EDirection.Up && world.getBoard().get(currentY + 1).get(currentX) == ECell.Empty)
+                dir = EDirection.Down;
+            else if (dir != EDirection.Up && world.getAgents().get(mySide).getDirection() != EDirection.Down && world.getBoard().get(currentY - 1).get(currentX) == ECell.Empty)
+                dir = EDirection.Up;
+            else if (dir != EDirection.Left && world.getAgents().get(mySide).getDirection() != EDirection.Right && world.getBoard().get(currentY).get(currentX - 1) == ECell.Empty)
                 dir = EDirection.Left;
-                return;
-            }
-            if(world.getBoard().get(currentY).get(currentX + 1) == enemyCell) {
+            else if (dir != EDirection.Right && world.getAgents().get(mySide).getDirection() != EDirection.Left && world.getBoard().get(currentY).get(currentX + 1) == ECell.Empty)
                 dir = EDirection.Right;
-                return;
-            }
-            if(world.getBoard().get(currentY).get(currentX - 1) == enemyCell) {
+            return;
+        }
+        if ((world.getAgents().get(otherSide).getPosition().getX() + 1 == currentX || world.getAgents().get(otherSide).getPosition().getX() - 1 == currentX) && world.getAgents().get(otherSide).getPosition().getY() == currentY) {
+            currentX = world.getAgents().get(this.mySide).getPosition().getX();
+            currentY = world.getAgents().get(this.mySide).getPosition().getY();
+            if (dir != EDirection.Down && world.getAgents().get(mySide).getDirection() != EDirection.Up && world.getBoard().get(currentY + 1).get(currentX) == ECell.Empty)
+                dir = EDirection.Down;
+            else if (dir != EDirection.Up && world.getAgents().get(mySide).getDirection() != EDirection.Down && world.getBoard().get(currentY - 1).get(currentX) == ECell.Empty)
+                dir = EDirection.Up;
+            else if (dir != EDirection.Left && world.getAgents().get(mySide).getDirection() != EDirection.Right && world.getBoard().get(currentY).get(currentX - 1) == ECell.Empty)
                 dir = EDirection.Left;
-                return;
-            }
-            if(world.getBoard().get(currentY).get(currentX + 1) != ECell.AreaWall) {
+            else if (dir != EDirection.Right && world.getAgents().get(mySide).getDirection() != EDirection.Left && world.getBoard().get(currentY).get(currentX + 1) == ECell.Empty)
                 dir = EDirection.Right;
-                return;
-            }
-            if(world.getBoard().get(currentY).get(currentX - 1) != ECell.AreaWall) {
-                dir = EDirection.Left;
-                return;
-            }
             return;
         }
 
-        if((nextDir == EDirection.Left && world.getAgents().get(otherSide).getPosition().getX() == currentX - 2 && world.getAgents().get(otherSide).getPosition().getY() == currentY) ||
-                (nextDir == EDirection.Right && world.getAgents().get(otherSide).getPosition().getX() == currentX + 2 && world.getAgents().get(otherSide).getPosition().getY() == currentY)) {
-            if(world.getBoard().get(currentY + 1).get(currentX) == ECell.Empty) {
+        if ((world.getAgents().get(otherSide).getPosition().getY() + 1 == currentY || world.getAgents().get(otherSide).getPosition().getY() - 1 == currentY) && world.getAgents().get(otherSide).getPosition().getX() == currentX) {
+            currentX = world.getAgents().get(this.mySide).getPosition().getX();
+            currentY = world.getAgents().get(this.mySide).getPosition().getY();
+            if (dir != EDirection.Down && world.getAgents().get(mySide).getDirection() != EDirection.Up && world.getBoard().get(currentY + 1).get(currentX) != ECell.AreaWall)
                 dir = EDirection.Down;
-                return;
-            }
-            if(world.getBoard().get(currentY - 1).get(currentX) == ECell.Empty) {
+            else if (dir != EDirection.Up && world.getAgents().get(mySide).getDirection() != EDirection.Down && world.getBoard().get(currentY - 1).get(currentX) != ECell.AreaWall)
                 dir = EDirection.Up;
-                return;
-            }
-            if(world.getBoard().get(currentY + 1).get(currentX) == enemyCell) {
-                dir = EDirection.Down;
-                return;
-            }
-            if(world.getBoard().get(currentY - 1).get(currentX) == enemyCell) {
-                dir = EDirection.Up;
-                return;
-            }
-            if(world.getBoard().get(currentY + 1).get(currentX) != ECell.AreaWall) {
-                dir = EDirection.Down;
-                return;
-            }
-            if(world.getBoard().get(currentY - 1).get(currentX) != ECell.AreaWall) {
-                dir = EDirection.Up;
-                return;
-            }
+            else if (dir != EDirection.Left && world.getAgents().get(mySide).getDirection() != EDirection.Right && world.getBoard().get(currentY).get(currentX - 1) != ECell.AreaWall)
+                dir = EDirection.Left;
+            else if (dir != EDirection.Right && world.getAgents().get(mySide).getDirection() != EDirection.Left && world.getBoard().get(currentY).get(currentX + 1) != ECell.AreaWall)
+                dir = EDirection.Right;
             return;
         }
+        if ((world.getAgents().get(otherSide).getPosition().getX() + 1 == currentX || world.getAgents().get(otherSide).getPosition().getX() - 1 == currentX) && world.getAgents().get(otherSide).getPosition().getY() == currentY) {
+            currentX = world.getAgents().get(this.mySide).getPosition().getX();
+            currentY = world.getAgents().get(this.mySide).getPosition().getY();
+            if (dir != EDirection.Down && world.getAgents().get(mySide).getDirection() != EDirection.Up && world.getBoard().get(currentY + 1).get(currentX) != ECell.AreaWall)
+                dir = EDirection.Down;
+            else if (dir != EDirection.Up && world.getAgents().get(mySide).getDirection() != EDirection.Down && world.getBoard().get(currentY - 1).get(currentX) != ECell.AreaWall)
+                dir = EDirection.Up;
+            else if (dir != EDirection.Left && world.getAgents().get(mySide).getDirection() != EDirection.Right && world.getBoard().get(currentY).get(currentX - 1) != ECell.AreaWall)
+                dir = EDirection.Left;
+            else if (dir != EDirection.Right && world.getAgents().get(mySide).getDirection() != EDirection.Left && world.getBoard().get(currentY).get(currentX + 1) != ECell.AreaWall)
+                dir = EDirection.Right;
+            return;
+        }
+        return;
     }
 
     private void WallBeakerCheck(int currentX, int currentY) {
@@ -184,23 +196,32 @@ public class AI extends RealtimeAI<World, KSObject> {
 
     private void DFSdirection(int up, int down, int left, int right) {
         int[] scores = {up, down, left, right};
-        int start = 0;
-        Arrays.sort(scores);
-        while (scores[start] == -30000) ++start;
+        EDirection nearerstEnemyDir = findNearestEnemyWall(world.getAgents().get(mySide).getPosition().getX(), world.getAgents().get(mySide).getPosition().getY());
 
-        boolean chooseWisely = false;
-        if (scores[start] == scores[3])
-            chooseWisely = findNearestEnemyWall(world.getAgents().get(this.mySide).getPosition().getX(), world.getAgents().get(this.mySide).getPosition().getY());
+        System.out.println(currentCycle + " " + up + " " + down + " " + right + " " + left + " " + nearerstEnemyDir);
 
-        if (!chooseWisely) {
-            if (up >= down && up >= left && up >= right) dir = EDirection.Up;
-            else if (down >= up && down >= left && down >= right) dir = EDirection.Down;
-            else if (left >= up && left >= down && left >= right) dir = EDirection.Left;
-            else if (right >= up && right >= down && right >= left) dir = EDirection.Right;
+        if (up >= down && up >= left && up >= right && nearerstEnemyDir == EDirection.Up) {
+            dir = EDirection.Up;
+            return;
+        } else if (down >= up && down >= left && down >= right && nearerstEnemyDir == EDirection.Down) {
+            dir = EDirection.Down;
+            return;
+        } else if (left >= up && left >= down && left >= right && nearerstEnemyDir == EDirection.Left) {
+            dir = EDirection.Left;
+            return;
+        } else if (right >= up && right >= down && right >= left && nearerstEnemyDir == EDirection.Right) {
+            dir = EDirection.Right;
+            return;
         }
+
+        if (up >= down && up >= left && up >= right) dir = EDirection.Up;
+        else if (down >= up && down >= left && down >= right) dir = EDirection.Down;
+        else if (left >= up && left >= down && left >= right) dir = EDirection.Left;
+        else if (right >= up && right >= down && right >= left) dir = EDirection.Right;
+
     }
 
-    private boolean findNearestEnemyWall(int currentX, int currentY) {
+    private EDirection findNearestEnemyWall(int currentX, int currentY) {
         int nearestX = 1, nearestY = 1, minDistance = 10000000;
 
         for (int i = 0; i < world.getBoard().size(); i++) {
@@ -214,24 +235,33 @@ public class AI extends RealtimeAI<World, KSObject> {
             }
         }
 
-        if (nearestY > currentY && world.getBoard().get(currentY + 1).get(currentX) == ECell.Empty && dir != EDirection.Up) {
-            dir = EDirection.Down;
-            return true;
-        }
-        if (nearestY < currentY && world.getBoard().get(currentY - 1).get(currentX) == ECell.Empty && dir != EDirection.Down) {
-            dir = EDirection.Up;
-            return true;
-        }
-        if (nearestX > currentX && world.getBoard().get(currentY).get(currentX + 1) == ECell.Empty && dir != EDirection.Left) {
-            dir = EDirection.Right;
-            return true;
-        }
-        if (nearestX < currentX && world.getBoard().get(currentY).get(currentX - 1) == ECell.Empty && dir != EDirection.Right) {
-            dir = EDirection.Left;
-            return true;
-        }
+        if (nearestY > currentY && world.getBoard().get(currentY + 1).get(currentX) != ECell.AreaWall && dir != EDirection.Up)
+            return EDirection.Down;
 
-        return false;
+        if (nearestY < currentY && world.getBoard().get(currentY - 1).get(currentX) != ECell.AreaWall && dir != EDirection.Down)
+            return EDirection.Up;
+
+        if (nearestX > currentX && world.getBoard().get(currentY).get(currentX + 1) != ECell.AreaWall && dir != EDirection.Left)
+            return EDirection.Right;
+
+        if (nearestX < currentX && world.getBoard().get(currentY).get(currentX - 1) != ECell.AreaWall && dir != EDirection.Right)
+            return EDirection.Left;
+
+
+        // make sure
+        if (nearestY >= currentY && world.getBoard().get(currentY + 1).get(currentX) != ECell.AreaWall && dir != EDirection.Up)
+            return EDirection.Down;
+
+        if (nearestY <= currentY && world.getBoard().get(currentY - 1).get(currentX) != ECell.AreaWall && dir != EDirection.Down)
+            return EDirection.Up;
+
+        if (nearestX >= currentX && world.getBoard().get(currentY).get(currentX + 1) != ECell.AreaWall && dir != EDirection.Left)
+            return EDirection.Right;
+
+        if (nearestX <= currentX && world.getBoard().get(currentY).get(currentX - 1) != ECell.AreaWall && dir != EDirection.Right)
+            return EDirection.Left;
+
+        return dir;
     }
 
     public void changeDirection(EDirection direction) {
@@ -252,48 +282,6 @@ public class AI extends RealtimeAI<World, KSObject> {
         if (b >= a && b >= c && b >= d) return b;
         if (c >= a && c >= b && c >= d) return c;
         return d;
-    }
-
-
-
-    private void beCarefulForAreaWalls(int currentX, int currentY) {
-        if (world.getAgents().get(this.mySide).getWallBreakerCooldown() == 0)
-            ActivateWallBreaker();
-
-        EDirection temp = dir;
-        if (world.getBoard().get(currentY + 1).get(currentX) != ECell.AreaWall && dir != EDirection.Up)
-            temp = EDirection.Down;
-
-        if (world.getBoard().get(currentY - 1).get(currentX) != ECell.AreaWall && dir != EDirection.Down)
-            temp = EDirection.Up;
-
-        if (world.getBoard().get(currentY).get(currentX + 1) != ECell.AreaWall && dir != EDirection.Left)
-            temp = EDirection.Right;
-
-        if (world.getBoard().get(currentY).get(currentX - 1) != ECell.AreaWall && dir != EDirection.Right)
-            temp = EDirection.Left;
-
-        dir = temp;
-    }
-
-    private boolean findNearestEmptyCell(int currentX, int currentY) {
-        if (world.getBoard().get(currentY + 1).get(currentX) == ECell.Empty && dir != EDirection.Up) {
-            dir = EDirection.Down;
-            return true;
-        }
-        if (world.getBoard().get(currentY - 1).get(currentX) == ECell.Empty && dir != EDirection.Down) {
-            dir = EDirection.Up;
-            return true;
-        }
-        if (world.getBoard().get(currentY).get(currentX + 1) == ECell.Empty && dir != EDirection.Left) {
-            dir = EDirection.Right;
-            return true;
-        }
-        if (world.getBoard().get(currentY).get(currentX - 1) == ECell.Empty && dir != EDirection.Right) {
-            dir = EDirection.Left;
-            return true;
-        }
-        return false;
     }
 
     private boolean breakNearbyEnemyWalls(int currentX, int currentY) {
