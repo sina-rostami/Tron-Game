@@ -40,7 +40,12 @@ public class AI extends RealtimeAI<World, KSObject> {
     // todo : add bfs to find nearest enemy wall
     // todo : suicide when ahead
     // todo : go for shakh to shack when ahead
-    
+    // todo : check shakh to shakh
+    // todo : best first search
+    // todo : add shakh to shakh to dfs
+    // todo : go to more empty places
+
+
     @Override
     public void decide() {
         int currentX = world.getAgents().get(this.mySide).getPosition().getX();
@@ -56,7 +61,7 @@ public class AI extends RealtimeAI<World, KSObject> {
 
         DFS(currentY, currentX, wallBeakerRem, 0, 0, world.getAgents().get(mySide).getHealth(), dir);
 
-        if (world.getScores().get(mySide) <= world.getScores().get(otherSide))
+        if (world.getScores().get(mySide) < world.getScores().get(otherSide))
             ShakhToShakhCheck(currentX, currentY);
 
         WallBeakerCheck(currentX, currentY);
@@ -140,7 +145,7 @@ public class AI extends RealtimeAI<World, KSObject> {
     public int DFS(int locationY, int locationX, int wallBrakeRem, int score, int movesCnt,
                    int health, EDirection lastDirection) {
         if (movesCnt == 12) {
-            if (world.getBoard().get(locationY).get(locationX) != ECell.Empty) return (score - 5);
+            if (world.getBoard().get(locationY).get(locationX) != ECell.Empty) return (score - 6);
             return score;
         }
 
@@ -148,7 +153,7 @@ public class AI extends RealtimeAI<World, KSObject> {
             --wallBrakeRem;
         else if (wallBrakeRem == 0 && health > 0 && world.getBoard().get(locationY).get(locationX) != ECell.Empty) {
             --health;
-            score -= 5;
+            score -= 6;
         }
 
         if (health == 0) {
