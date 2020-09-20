@@ -139,7 +139,7 @@ public class AI extends RealtimeAI<World, KSObject> {
 
     public int DFS(int locationY, int locationX, int wallBrakeRem, int score, int movesCnt,
                    int health, EDirection lastDirection) {
-        if (movesCnt == 12) {
+        if (movesCnt == 13) {
             if (world.getBoard().get(locationY).get(locationX) != ECell.Empty) return (score - 5);
             return score;
         }
@@ -159,7 +159,7 @@ public class AI extends RealtimeAI<World, KSObject> {
         }
 
         // change score
-        if (world.getBoard().get(locationY).get(locationX) == enemyCell) score += 2;
+        if (world.getBoard().get(locationY).get(locationX) == enemyCell) score += 5;
         if (world.getBoard().get(locationY).get(locationX) == ECell.Empty) score += 1;
 
         int down = -30000, up = -30000, right = -30000, left = -30000;
