@@ -31,4 +31,10 @@ public enum ECell
 		}
 		return reverseLookup.get(value);
 	}
+
+	public int f() {
+		return 0;
+	}
+
+
 }
