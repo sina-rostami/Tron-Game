@@ -206,24 +206,24 @@ public class AI extends RealtimeAI<World, KSObject> {
     private void DFSDirection(int up, int down, int left, int right) {
         EDirection nearestEnemyDir = findNearestEnemyWall(world.getAgents().get(mySide).getPosition().getX(), world.getAgents().get(mySide).getPosition().getY());
 
-        if (up >= down && up >= left && up >= right && nearestEnemyDir == EDirection.Up) {
+        if (up >= maxScore(up, right, down, left) && nearestEnemyDir == EDirection.Up) {
             dir = EDirection.Up;
             return;
-        } else if (down >= up && down >= left && down >= right && nearestEnemyDir == EDirection.Down) {
+        } else if (down >= maxScore(up, right, down, left) && nearestEnemyDir == EDirection.Down) {
             dir = EDirection.Down;
             return;
-        } else if (left >= up && left >= down && left >= right && nearestEnemyDir == EDirection.Left) {
+        } else if (left >= maxScore(up, right, down, left) && nearestEnemyDir == EDirection.Left) {
             dir = EDirection.Left;
             return;
-        } else if (right >= up && right >= down && right >= left && nearestEnemyDir == EDirection.Right) {
+        } else if (right >= maxScore(up, right, down, left) && nearestEnemyDir == EDirection.Right) {
             dir = EDirection.Right;
             return;
         }
 
-        if (up >= down && up >= left && up >= right) dir = EDirection.Up;
-        else if (down >= up && down >= left && down >= right) dir = EDirection.Down;
-        else if (left >= up && left >= down && left >= right) dir = EDirection.Left;
-        else if (right >= up && right >= down && right >= left) dir = EDirection.Right;
+        if (up >= maxScore(up, right, down, left)) dir = EDirection.Up;
+        else if (down >= maxScore(up, right, down, left)) dir = EDirection.Down;
+        else if (left >= maxScore(up, right, down, left)) dir = EDirection.Left;
+        else if (right >= maxScore(up, right, down, left)) dir = EDirection.Right;
 
     }
 
