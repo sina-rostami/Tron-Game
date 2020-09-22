@@ -14,7 +14,7 @@ public class AI extends RealtimeAI<World, KSObject> {
     private EDirection dir;
     private ECell enemyCell;
     private ECell myCell;
-
+    private int a;
 
     public AI(World world) {
         super(world);
