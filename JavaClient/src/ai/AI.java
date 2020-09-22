@@ -59,7 +59,7 @@ public class AI extends RealtimeAI<World, KSObject> {
 
         DFS(currentY, currentX, wallBeakerRem, 0, 0, world.getAgents().get(mySide).getHealth(), dir);
 
-        if (world.getScores().get(mySide) < world.getScores().get(otherSide))
+        if (world.getScores().get(mySide) <= world.getScores().get(otherSide))
             ShakhToShakhCheck(currentX, currentY);
 
         WallBeakerCheck(currentX, currentY);
@@ -142,8 +142,12 @@ public class AI extends RealtimeAI<World, KSObject> {
 
     public int DFS(int locationY, int locationX, int wallBrakeRem, int score, int movesCnt,
                    int health, EDirection lastDirection) {
-        if (movesCnt == 12) {
-            if (world.getBoard().get(locationY).get(locationX) != ECell.Empty) return (score - 6);
+        if(world.getBoard().get(locationY).get(locationX) == ECell.AreaWall) {
+            return 0;
+        }
+
+        if (movesCnt == 13) {
+            if (world.getBoard().get(locationY).get(locationX) != ECell.Empty) return -3000;
             return score;
         }
 
@@ -151,7 +155,7 @@ public class AI extends RealtimeAI<World, KSObject> {
             --wallBrakeRem;
         else if (wallBrakeRem == 0 && health > 0 && world.getBoard().get(locationY).get(locationX) != ECell.Empty) {
             --health;
-            score -= 6;
+            score -= 15;
         }
 
         if (health == 0) {
@@ -164,7 +168,7 @@ public class AI extends RealtimeAI<World, KSObject> {
         // change score
         if (world.getBoard().get(locationY).get(locationX) == enemyCell) score += 5;
         if (world.getBoard().get(locationY).get(locationX) == ECell.Empty) score += 1;
-        if (world.getBoard().get(locationY).get(locationX) == myCell) score -= 2;
+        //if (world.getBoard().get(locationY).get(locationX) == myCell) score -= 2;
 
 
         int down = -30000, up = -30000, right = -30000, left = -30000;
@@ -200,10 +204,7 @@ public class AI extends RealtimeAI<World, KSObject> {
 
 
     private void DFSDirection(int up, int down, int left, int right) {
-        int[] scores = {up, down, left, right};
         EDirection nearestEnemyDir = findNearestEnemyWall(world.getAgents().get(mySide).getPosition().getX(), world.getAgents().get(mySide).getPosition().getY());
-
-        //System.out.println(currentCycle + " " + up + " " + down + " " + right + " " + left + " " + nearestEnemyDir);
 
         if (up >= down && up >= left && up >= right && nearestEnemyDir == EDirection.Up) {
             dir = EDirection.Up;
