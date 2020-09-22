@@ -14,7 +14,6 @@ public class AI extends RealtimeAI<World, KSObject> {
     private EDirection dir;
     private ECell enemyCell;
     private ECell myCell;
-    private int a;
 
     public AI(World world) {
         super(world);
@@ -60,14 +59,14 @@ public class AI extends RealtimeAI<World, KSObject> {
         DFS(currentY, currentX, wallBeakerRem, 0, 0, world.getAgents().get(mySide).getHealth(), dir);
 
         if (world.getScores().get(mySide) <= world.getScores().get(otherSide))
-            ShakhToShakhCheck(currentX, currentY);
+            HeadToHeadCheck(currentX, currentY);
 
         WallBeakerCheck(currentX, currentY);
 
         changeDirection(dir);
     }
 
-    private void ShakhToShakhCheck(int currentX, int currentY) {
+    private void HeadToHeadCheck(int currentX, int currentY) {
         if (dir == EDirection.Down) currentY += 1;
         if (dir == EDirection.Up) currentY -= 1;
         if (dir == EDirection.Right) currentX += 1;
@@ -142,7 +141,7 @@ public class AI extends RealtimeAI<World, KSObject> {
 
     public int DFS(int locationY, int locationX, int wallBrakeRem, int score, int movesCnt,
                    int health, EDirection lastDirection) {
-        if(world.getBoard().get(locationY).get(locationX) == ECell.AreaWall) {
+        if (world.getBoard().get(locationY).get(locationX) == ECell.AreaWall) {
             return 0;
         }
 
@@ -199,31 +198,31 @@ public class AI extends RealtimeAI<World, KSObject> {
 
         if (movesCnt == 0) DFSDirection(up, down, left, right);
 
-        return maxScore(down, up, right, left);
+        return maxThree(down, up, right, left);
     }
 
 
     private void DFSDirection(int up, int down, int left, int right) {
         EDirection nearestEnemyDir = findNearestEnemyWall(world.getAgents().get(mySide).getPosition().getX(), world.getAgents().get(mySide).getPosition().getY());
 
-        if (up >= maxScore(up, right, down, left) && nearestEnemyDir == EDirection.Up) {
+        if (up >= maxThree(up, right, down, left) && nearestEnemyDir == EDirection.Up) {
             dir = EDirection.Up;
             return;
-        } else if (down >= maxScore(up, right, down, left) && nearestEnemyDir == EDirection.Down) {
+        } else if (down >= maxThree(up, right, down, left) && nearestEnemyDir == EDirection.Down) {
             dir = EDirection.Down;
             return;
-        } else if (left >= maxScore(up, right, down, left) && nearestEnemyDir == EDirection.Left) {
+        } else if (left >= maxThree(up, right, down, left) && nearestEnemyDir == EDirection.Left) {
             dir = EDirection.Left;
             return;
-        } else if (right >= maxScore(up, right, down, left) && nearestEnemyDir == EDirection.Right) {
+        } else if (right >= maxThree(up, right, down, left) && nearestEnemyDir == EDirection.Right) {
             dir = EDirection.Right;
             return;
         }
 
-        if (up >= maxScore(up, right, down, left)) dir = EDirection.Up;
-        else if (down >= maxScore(up, right, down, left)) dir = EDirection.Down;
-        else if (left >= maxScore(up, right, down, left)) dir = EDirection.Left;
-        else if (right >= maxScore(up, right, down, left)) dir = EDirection.Right;
+        if (up >= maxThree(up, right, down, left)) dir = EDirection.Up;
+        else if (down >= maxThree(up, right, down, left)) dir = EDirection.Down;
+        else if (left >= maxThree(up, right, down, left)) dir = EDirection.Left;
+        else if (right >= maxThree(up, right, down, left)) dir = EDirection.Right;
 
     }
 
@@ -283,37 +282,11 @@ public class AI extends RealtimeAI<World, KSObject> {
         this.sendCommand(new ActivateWallBreaker());
     }
 
-    private int maxScore(int a, int b, int c, int d) {
+    private int maxThree(int a, int b, int c, int d) {
         if (a >= b && a >= c && a >= d) return a;
         if (b >= a && b >= c && b >= d) return b;
         if (c >= a && c >= b && c >= d) return c;
         return d;
     }
 
-    private boolean breakNearbyEnemyWalls(int currentX, int currentY) {
-        if (world.getAgents().get(this.mySide).getWallBreakerCooldown() == 0 || world.getAgents().get(this.mySide).getWallBreakerRemTime() > 1) {
-            if (world.getBoard().get(currentY + 1).get(currentX) == enemyCell && dir != EDirection.Up) {
-                if (world.getAgents().get(this.mySide).getWallBreakerCooldown() == 0) ActivateWallBreaker();
-                dir = EDirection.Down;
-                return true;
-            }
-
-            if (world.getBoard().get(currentY - 1).get(currentX) == enemyCell && dir != EDirection.Down) {
-                if (world.getAgents().get(this.mySide).getWallBreakerCooldown() == 0) ActivateWallBreaker();
-                dir = EDirection.Up;
-                return true;
-            }
-            if (world.getBoard().get(currentY).get(currentX + 1) == enemyCell && dir != EDirection.Left) {
-                if (world.getAgents().get(this.mySide).getWallBreakerCooldown() == 0) ActivateWallBreaker();
-                dir = EDirection.Right;
-                return true;
-            }
-            if (world.getBoard().get(currentY).get(currentX - 1) == enemyCell && dir != EDirection.Right) {
-                if (world.getAgents().get(this.mySide).getWallBreakerCooldown() == 0) ActivateWallBreaker();
-                dir = EDirection.Left;
-                return true;
-            }
-        }
-        return false;
-    }
 }
