@@ -9,14 +9,12 @@ import ks.models.EDirection;
 import ks.models.World;
 import team.koala.chillin.client.RealtimeAI;
 
-import javax.swing.*;
-import javax.swing.text.EditorKit;
-import java.util.Arrays;
-
 
 public class AI extends RealtimeAI<World, KSObject> {
     private EDirection dir;
     private ECell enemyCell;
+    private ECell myCell;
+
 
     public AI(World world) {
         super(world);
@@ -31,7 +29,7 @@ public class AI extends RealtimeAI<World, KSObject> {
 
         changeDirection(dir);
         enemyCell = mySide.equals("Yellow") ? ECell.BlueWall : ECell.YellowWall;
-
+        myCell = mySide.equals("Yellow") ? ECell.YellowWall : ECell.BlueWall;
         System.out.println("initialize");
     }
 
@@ -166,6 +164,8 @@ public class AI extends RealtimeAI<World, KSObject> {
         // change score
         if (world.getBoard().get(locationY).get(locationX) == enemyCell) score += 5;
         if (world.getBoard().get(locationY).get(locationX) == ECell.Empty) score += 1;
+        if (world.getBoard().get(locationY).get(locationX) == myCell) score -= 2;
+
 
         int down = -30000, up = -30000, right = -30000, left = -30000;
 
@@ -193,28 +193,28 @@ public class AI extends RealtimeAI<World, KSObject> {
             left = DFS(locationY, locationX - 1, wallBrakeRem, score, movesCnt + 1, health, EDirection.Left);
         }
 
-        if (movesCnt == 0) DFSdirection(up, down, left, right);
+        if (movesCnt == 0) DFSDirection(up, down, left, right);
 
         return maxScore(down, up, right, left);
     }
 
 
-    private void DFSdirection(int up, int down, int left, int right) {
+    private void DFSDirection(int up, int down, int left, int right) {
         int[] scores = {up, down, left, right};
-        EDirection nearerstEnemyDir = findNearestEnemyWall(world.getAgents().get(mySide).getPosition().getX(), world.getAgents().get(mySide).getPosition().getY());
+        EDirection nearestEnemyDir = findNearestEnemyWall(world.getAgents().get(mySide).getPosition().getX(), world.getAgents().get(mySide).getPosition().getY());
 
-        System.out.println(currentCycle + " " + up + " " + down + " " + right + " " + left + " " + nearerstEnemyDir);
+        //System.out.println(currentCycle + " " + up + " " + down + " " + right + " " + left + " " + nearestEnemyDir);
 
-        if (up >= down && up >= left && up >= right && nearerstEnemyDir == EDirection.Up) {
+        if (up >= down && up >= left && up >= right && nearestEnemyDir == EDirection.Up) {
             dir = EDirection.Up;
             return;
-        } else if (down >= up && down >= left && down >= right && nearerstEnemyDir == EDirection.Down) {
+        } else if (down >= up && down >= left && down >= right && nearestEnemyDir == EDirection.Down) {
             dir = EDirection.Down;
             return;
-        } else if (left >= up && left >= down && left >= right && nearerstEnemyDir == EDirection.Left) {
+        } else if (left >= up && left >= down && left >= right && nearestEnemyDir == EDirection.Left) {
             dir = EDirection.Left;
             return;
-        } else if (right >= up && right >= down && right >= left && nearerstEnemyDir == EDirection.Right) {
+        } else if (right >= up && right >= down && right >= left && nearestEnemyDir == EDirection.Right) {
             dir = EDirection.Right;
             return;
         }
