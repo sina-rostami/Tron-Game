@@ -51,6 +51,7 @@ public class AI extends RealtimeAI<World, KSObject> {
         int currentX = world.getAgents().get(this.mySide).getPosition().getX();
         int currentY = world.getAgents().get(this.mySide).getPosition().getY();
         int wallBeakerRem = world.getConstants().getWallBreakerDuration();
+
         dir = world.getAgents().get(mySide).getDirection();
 
         if (world.getAgents().get(mySide).getWallBreakerRemTime() != 0)
@@ -145,7 +146,7 @@ public class AI extends RealtimeAI<World, KSObject> {
     public int DFS(int locationY, int locationX, int wallBrakeRem, int score, int movesCnt,
                    int health, EDirection lastDirection) {
         if (movesCnt == 12) {
-            if (world.getBoard().get(locationY).get(locationX) != ECell.Empty) return (score - 6);
+            if (world.getBoard().get(locationY).get(locationX) != ECell.Empty) return (score - 10);
             return score;
         }
 
@@ -153,7 +154,13 @@ public class AI extends RealtimeAI<World, KSObject> {
             --wallBrakeRem;
         else if (wallBrakeRem == 0 && health > 0 && world.getBoard().get(locationY).get(locationX) != ECell.Empty) {
             --health;
-            score -= 6;
+            score -= 10;
+        }
+
+        if (locationY == world.getAgents().get(otherSide).getPosition().getY() && locationX == world.getAgents().get(otherSide).getPosition().getX()) {
+            if (world.getScores().get(mySide) > world.getScores().get(otherSide))
+                return score + 10;
+            return score - 50;
         }
 
         if (health == 0) {
@@ -203,7 +210,7 @@ public class AI extends RealtimeAI<World, KSObject> {
         int[] scores = {up, down, left, right};
         EDirection nearerstEnemyDir = findNearestEnemyWall(world.getAgents().get(mySide).getPosition().getX(), world.getAgents().get(mySide).getPosition().getY());
 
-        System.out.println(currentCycle + " " + up + " " + down + " " + right + " " + left + " " + nearerstEnemyDir);
+        System.out.println(currentCycle + " " + up + " " + down + " " + right + " " + left + " " + nearerstEnemyDir + " ");
 
         if (up >= down && up >= left && up >= right && nearerstEnemyDir == EDirection.Up) {
             dir = EDirection.Up;
