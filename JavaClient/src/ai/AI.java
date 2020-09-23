@@ -9,6 +9,8 @@ import ks.models.EDirection;
 import ks.models.World;
 import team.koala.chillin.client.RealtimeAI;
 
+import java.util.ArrayList;
+
 
 public class AI extends RealtimeAI<World, KSObject> {
     private EDirection dir;
@@ -21,6 +23,7 @@ public class AI extends RealtimeAI<World, KSObject> {
 
     @Override
     public void initialize() {
+
         if (world.getBoard().get(world.getAgents().get(this.mySide).getPosition().getY() - 1).get(world.getAgents().get(this.mySide).getPosition().getX()) == ECell.AreaWall)
             dir = EDirection.Down;
         else
@@ -29,12 +32,13 @@ public class AI extends RealtimeAI<World, KSObject> {
         changeDirection(dir);
         enemyCell = mySide.equals("Yellow") ? ECell.BlueWall : ECell.YellowWall;
         myCell = mySide.equals("Yellow") ? ECell.YellowWall : ECell.BlueWall;
+
         System.out.println("initialize");
     }
+    // todo : add bfs to find nearest enemy wall
 
     // todo : dfs time
     // todo : add cooldown to dfs
-    // todo : add bfs to find nearest enemy wall
     // todo : suicide when ahead
     // todo : go for shakh to shack when ahead
     // todo : check shakh to shakh
@@ -57,6 +61,10 @@ public class AI extends RealtimeAI<World, KSObject> {
 
 
         DFS(currentY, currentX, wallBeakerRem, 0, 0, world.getAgents().get(mySide).getHealth(), dir);
+
+        int[] arr = NearestEnemyWall(currentX, currentY);
+        System.out.println(arr[0] + " , " + arr[1]);
+
 
         if (world.getScores().get(mySide) <= world.getScores().get(otherSide))
             HeadToHeadCheck(currentX, currentY);
@@ -141,18 +149,23 @@ public class AI extends RealtimeAI<World, KSObject> {
 
     public int DFS(int locationY, int locationX, int wallBrakeRem, int score, int movesCnt,
                    int health, EDirection lastDirection) {
+        if (locationX < 1 || locationX >= world.getBoard().get(0).size() ||
+                locationY < 1 || locationY >= world.getBoard().size())
+            return -1;
+
         if (world.getBoard().get(locationY).get(locationX) == ECell.AreaWall) {
             return 0;
         }
 
         if (movesCnt == 13) {
-            if (world.getBoard().get(locationY).get(locationX) != ECell.Empty) return -3000;
+            if (world.getBoard().get(locationY).get(locationX) != ECell.Empty)
+                return -3000;
             return score;
         }
 
         if (wallBrakeRem > 0 && (world.getBoard().get(locationY).get(locationX) != ECell.Empty || wallBrakeRem < world.getConstants().getWallBreakerDuration()))
             --wallBrakeRem;
-        else if (wallBrakeRem == 0 && health > 0 && world.getBoard().get(locationY).get(locationX) != ECell.Empty) {
+        else if (health > 0 && world.getBoard().get(locationY).get(locationX) != ECell.Empty) {
             --health;
             score -= 15;
         }
@@ -164,34 +177,30 @@ public class AI extends RealtimeAI<World, KSObject> {
             return score;
         }
 
-        // change score
-        if (world.getBoard().get(locationY).get(locationX) == enemyCell) score += 5;
-        if (world.getBoard().get(locationY).get(locationX) == ECell.Empty) score += 1;
-        //if (world.getBoard().get(locationY).get(locationX) == myCell) score -= 2;
-
-
         int down = -30000, up = -30000, right = -30000, left = -30000;
 
+        // change score
+        if (world.getBoard().get(locationY).get(locationX) == enemyCell) score += 6;
+        if (world.getBoard().get(locationY).get(locationX) == ECell.Empty) score += 1;
+        if (world.getBoard().get(locationY).get(locationX) == myCell) score -= 2;
+
+
         // check down
-        int newLocation = (locationY + 1) * world.getBoard().get(0).size() + locationX;
         if (lastDirection != EDirection.Up && world.getBoard().get(locationY + 1).get(locationX) != ECell.AreaWall) {
             down = DFS(locationY + 1, locationX, wallBrakeRem, score, movesCnt + 1, health, EDirection.Down);
         }
 
         //check up
-        newLocation = (locationY - 1) * world.getBoard().get(0).size() + locationX;
         if (lastDirection != EDirection.Down && world.getBoard().get(locationY - 1).get(locationX) != ECell.AreaWall) {
             up = DFS(locationY - 1, locationX, wallBrakeRem, score, movesCnt + 1, health, EDirection.Up);
         }
 
         //check right
-        newLocation = locationY * world.getBoard().get(0).size() + locationX + 1;
         if (lastDirection != EDirection.Left && world.getBoard().get(locationY).get(locationX + 1) != ECell.AreaWall) {
             right = DFS(locationY, locationX + 1, wallBrakeRem, score, movesCnt + 1, health, EDirection.Right);
         }
 
         //check left
-        newLocation = locationY * world.getBoard().get(0).size() + locationX - 1;
         if (lastDirection != EDirection.Right && world.getBoard().get(locationY).get(locationX - 1) != ECell.AreaWall) {
             left = DFS(locationY, locationX - 1, wallBrakeRem, score, movesCnt + 1, health, EDirection.Left);
         }
@@ -226,13 +235,35 @@ public class AI extends RealtimeAI<World, KSObject> {
 
     }
 
+
+    private int[] NearestEnemyWall(int currentX, int currentY) {
+
+        ArrayList<ECell> queue = new ArrayList<>();
+
+        queue.add(world.getBoard().get(currentY).get(currentX));
+
+
+        while (!queue.isEmpty()) {
+            if (queue.get(0) == enemyCell) {
+
+                // done
+            }
+
+
+        }
+
+
+        return null;
+    }
+
+
     private EDirection findNearestEnemyWall(int currentX, int currentY) {
         int nearestX = 1, nearestY = 1, minDistance = 10000000;
 
         for (int i = 0; i < world.getBoard().size(); i++) {
             for (int j = 0; j < world.getBoard().get(0).size(); j++) {
                 int distance = (i - currentY) * (i - currentY) + (j - currentX) * (j - currentX);
-                if (distance < minDistance && world.getBoard().get(i).get(j) == enemyCell) {
+                if (world.getBoard().get(i).get(j) == enemyCell && distance < minDistance) {
                     nearestY = i;
                     nearestX = j;
                     minDistance = distance;
