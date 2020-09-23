@@ -9,8 +9,6 @@ import ks.models.EDirection;
 import ks.models.World;
 import team.koala.chillin.client.RealtimeAI;
 
-import java.util.ArrayList;
-
 
 public class AI extends RealtimeAI<World, KSObject> {
     private EDirection dir;
@@ -48,10 +46,8 @@ public class AI extends RealtimeAI<World, KSObject> {
             wallbrakerCool = 12;
         dir = world.getAgents().get(mySide).getDirection();
 
+//        BFSinWorld bfs = new BFSinWorld(world, world.getAgents().get(mySide), enemyCell, myCell);
         DFS(currentY, currentX, wallbrakerCool, 0, 0, world.getAgents().get(mySide).getHealth(), dir);
-
-        int[] arr = NearestEnemyWall(currentX, currentY);
-//        System.out.println(currentCycle + " " + arr[0] + " , " + arr[1] + " ");
 
         WallBeakerCheck(currentX, currentY);
 
@@ -79,6 +75,7 @@ public class AI extends RealtimeAI<World, KSObject> {
             return score;
         }
         if (locationY == world.getAgents().get(otherSide).getPosition().getY() && locationX == world.getAgents().get(otherSide).getPosition().getX()) {
+            if (movesCnt <= 3) return score + 10;
             if (world.getScores().get(mySide) > world.getScores().get(otherSide)) return score + 3;
             else return score - 40;
         }
@@ -123,7 +120,7 @@ public class AI extends RealtimeAI<World, KSObject> {
 
         if (movesCnt == 0) DFSDirection(up, down, left, right);
 
-        return maxThree(down, up, right, left);
+        return maxFour(down, up, right, left);
     }
 
 
@@ -131,65 +128,26 @@ public class AI extends RealtimeAI<World, KSObject> {
         EDirection nearestEnemyDir = findNearestEnemyWall(world.getAgents().get(mySide).getPosition().getX(), world.getAgents().get(mySide).getPosition().getY());
         System.out.println(currentCycle + " " + up + " " + down + " " + right + " " + left);
 
-        if (up >= maxThree(up, right, down, left) && nearestEnemyDir == EDirection.Up) {
+        if (up >= maxFour(up, right, down, left) && nearestEnemyDir == EDirection.Up) {
             dir = EDirection.Up;
             return;
-        } else if (down >= maxThree(up, right, down, left) && nearestEnemyDir == EDirection.Down) {
+        } else if (down >= maxFour(up, right, down, left) && nearestEnemyDir == EDirection.Down) {
             dir = EDirection.Down;
             return;
-        } else if (left >= maxThree(up, right, down, left) && nearestEnemyDir == EDirection.Left) {
+        } else if (left >= maxFour(up, right, down, left) && nearestEnemyDir == EDirection.Left) {
             dir = EDirection.Left;
             return;
-        } else if (right >= maxThree(up, right, down, left) && nearestEnemyDir == EDirection.Right) {
+        } else if (right >= maxFour(up, right, down, left) && nearestEnemyDir == EDirection.Right) {
             dir = EDirection.Right;
             return;
         }
 
-        if (up >= maxThree(up, right, down, left)) dir = EDirection.Up;
-        else if (down >= maxThree(up, right, down, left)) dir = EDirection.Down;
-        else if (left >= maxThree(up, right, down, left)) dir = EDirection.Left;
-        else if (right >= maxThree(up, right, down, left)) dir = EDirection.Right;
+        if (up >= maxFour(up, right, down, left)) dir = EDirection.Up;
+        else if (down >= maxFour(up, right, down, left)) dir = EDirection.Down;
+        else if (left >= maxFour(up, right, down, left)) dir = EDirection.Left;
+        else if (right >= maxFour(up, right, down, left)) dir = EDirection.Right;
 
     }
-
-
-    private int[] NearestEnemyWall(int currentX, int currentY) {
-        boolean[][] seen = new boolean[world.getBoard().size()][world.getBoard().get(0).size()];
-        ArrayList<int[]> queue = new ArrayList<>();
-
-        queue.add(new int[]{currentX, currentY});
-
-        while (!queue.isEmpty()) {
-            int[] current = queue.get(0);
-            seen[current[1]][current[0]] = true;
-
-            if (world.getBoard().get(queue.get(0)[1]).get(queue.get(0)[0]) == enemyCell) {
-                return queue.get(0);
-            }
-
-            queue.remove(0);
-
-            if (current[1] > 1 && !seen[current[1] - 1][current[0]] && world.getBoard().get(current[1] - 1).get(current[0]) != ECell.AreaWall) {
-                queue.add(new int[]{current[0], current[1] - 1});
-                seen[current[1] - 1][current[0]] = true;
-            }
-            if (current[0] > 1 && !seen[current[1]][current[0] - 1] && world.getBoard().get(current[1]).get(current[0] - 1) != ECell.AreaWall) {
-                queue.add(new int[]{current[0] - 1, current[1]});
-                seen[current[1]][current[0] - 1] = true;
-            }
-            if (current[1] < world.getBoard().size() - 1 && !seen[current[1] + 1][current[0]] && world.getBoard().get(current[1] + 1).get(current[0]) != ECell.AreaWall) {
-                queue.add(new int[]{current[0], current[1] + 1});
-                seen[current[1] + 1][current[0]] = true;
-            }
-            if (current[0] < world.getBoard().get(0).size() - 1 && !seen[current[1]][current[0] + 1] && world.getBoard().get(current[1]).get(current[0] + 1) != ECell.AreaWall) {
-                queue.add(new int[]{current[0] + 1, current[1]});
-                seen[current[1]][current[0] + 1] = true;
-            }
-
-        }
-        return null;
-    }
-
 
     private EDirection findNearestEnemyWall(int currentX, int currentY) {
         int nearestX = 1, nearestY = 1, minDistance = 10000000;
@@ -247,7 +205,7 @@ public class AI extends RealtimeAI<World, KSObject> {
         this.sendCommand(new ActivateWallBreaker());
     }
 
-    private int maxThree(int a, int b, int c, int d) {
+    private int maxFour(int a, int b, int c, int d) {
         if (a >= b && a >= c && a >= d) return a;
         if (b >= a && b >= c && b >= d) return b;
         if (c >= a && c >= b && c >= d) return c;
