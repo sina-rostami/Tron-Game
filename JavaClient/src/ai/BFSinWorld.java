@@ -111,8 +111,9 @@ public class BFSinWorld {
     private boolean isSouitableRoute(String currentDir) {
         int iIndex = mySide.getPosition().getY(), jIndex = mySide.getPosition().getX();
 
-        
         int wallBreakerOnTime = 0;
+        boolean wallBreakerOn = false;
+
         for(int i = 0; i < currentDir.length(); ++i) {
             switch (currentDir.charAt(i)) {
                 case 'U' :
