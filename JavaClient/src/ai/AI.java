@@ -38,8 +38,6 @@ public class AI extends RealtimeAI<World, KSObject> {
     // todo : add bfs to find nearest enemy wall
     // todo : best first search
     // todo : go to more empty places
-    // todo : add go for enemy in dfs
-
 
     @Override
     public void decide() {
