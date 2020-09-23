@@ -32,8 +32,9 @@ public class AI extends RealtimeAI<World, KSObject> {
         changeDirection(dir);
         enemyCell = mySide.equals("Yellow") ? ECell.BlueWall : ECell.YellowWall;
         myCell = mySide.equals("Yellow") ? ECell.YellowWall : ECell.BlueWall;
-
         System.out.println("initialize");
+
+        System.out.println(world.getConstants().getWallBreakerDuration());
     }
     // todo : add bfs to find nearest enemy wall
 

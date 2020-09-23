@@ -10,6 +10,7 @@ public class BFSinWorld {
     private ArrayList<String> queue;
     private Agent mySide;
     private ECell enemyCell, myCell;
+    private int wallBreakerDuration;
     private boolean[][] seen;
 
 
@@ -18,8 +19,10 @@ public class BFSinWorld {
         this.mySide = mySide;
         this.enemyCell = enemyCell;
         this.myCell = myCell;
+
         queue = new ArrayList<>();
         seen = new boolean[world.getBoard().size()][world.getBoard().get(0).size()];
+        wallBreakerDuration = world.getConstants().getWallBreakerDuration();
     }
 
     public void doBfs() {
@@ -42,7 +45,6 @@ public class BFSinWorld {
         System.out.println("cnt = " + cnt);
         System.out.println("Route = " + currentDir);
     }
-
 
     private boolean isValid(String put) {
         int iIndex = mySide.getPosition().getY(), jIndex = mySide.getPosition().getX();
@@ -95,8 +97,40 @@ public class BFSinWorld {
                     break;
             }
         }
-        if(world.getBoard().get(iIndex).get(jIndex) == enemyCell)
-            return true;
+
+
+        if(world.getBoard().get(iIndex).get(jIndex) != enemyCell)
+            return false;
+
+        return isSouitableRoute(currentDir);
+
+
+
+    }
+
+    private boolean isSouitableRoute(String currentDir) {
+        int iIndex = mySide.getPosition().getY(), jIndex = mySide.getPosition().getX();
+
+        
+        int wallBreakerOnTime = 0;
+        for(int i = 0; i < currentDir.length(); ++i) {
+            switch (currentDir.charAt(i)) {
+                case 'U' :
+                    iIndex--;
+                    break;
+                case 'D' :
+                    iIndex++;
+                    break;
+                case 'L' :
+                    jIndex--;
+                    break;
+                case 'R' :
+                    jIndex++;
+                    break;
+                default:
+                    break;
+            }
+        }
 
         return false;
     }
