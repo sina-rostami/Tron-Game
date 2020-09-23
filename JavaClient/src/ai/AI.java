@@ -251,7 +251,6 @@ public class AI extends RealtimeAI<World, KSObject> {
                 return queue.get(0);
             }
 
-
             queue.remove(0);
 
             if (current[1] > 1 && !seen[current[1] - 1][current[0]] && world.getBoard().get(current[1] - 1).get(current[0]) != ECell.AreaWall) {
