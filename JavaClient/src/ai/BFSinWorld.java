@@ -12,7 +12,7 @@ public class BFSinWorld {
     private ECell enemyCell, myCell;
     private int wallBreakerDuration;
     private boolean[][] seen;
-
+    public int cnt = 0;
 
     public BFSinWorld(World world, Agent mySide, ECell enemyCell, ECell myCell) {
         this.world = world;
@@ -26,7 +26,6 @@ public class BFSinWorld {
     }
 
     public void doBfs() {
-        int cnt = 0;
         String[] directions = {"U", "D", "R", "L"};
         String currentDir = "";
         queue.add("");

@@ -9,8 +9,6 @@ import ks.models.EDirection;
 import ks.models.World;
 import team.koala.chillin.client.RealtimeAI;
 
-import java.util.ArrayList;
-
 
 public class AI extends RealtimeAI<World, KSObject> {
     private EDirection dir;
@@ -37,105 +35,26 @@ public class AI extends RealtimeAI<World, KSObject> {
         System.out.println(world.getConstants().getWallBreakerDuration());
     }
     // todo : add bfs to find nearest enemy wall
-
-    // todo : dfs time
-    // todo : add cooldown to dfs
-    // todo : suicide when ahead
-    // todo : go for shakh to shack when ahead
-    // todo : check shakh to shakh
     // todo : best first search
-    // todo : add shakh to shakh to dfs
     // todo : go to more empty places
-
 
     @Override
     public void decide() {
         int currentX = world.getAgents().get(this.mySide).getPosition().getX();
         int currentY = world.getAgents().get(this.mySide).getPosition().getY();
-        int wallBeakerRem = world.getConstants().getWallBreakerDuration();
+        int wallbrakerCool = world.getAgents().get(mySide).getWallBreakerCooldown();
+        if (world.getAgents().get(mySide).getWallBreakerRemTime() == 0 && world.getAgents().get(mySide).getWallBreakerCooldown() == 0)
+            wallbrakerCool = 12;
         dir = world.getAgents().get(mySide).getDirection();
 
-        if (world.getAgents().get(mySide).getWallBreakerRemTime() != 0)
-            wallBeakerRem = world.getAgents().get(mySide).getWallBreakerRemTime();
-        else if (world.getAgents().get(mySide).getWallBreakerCooldown() <= 6 && world.getAgents().get(mySide).getWallBreakerCooldown() != 0)
-            wallBeakerRem = 0;
-
-
-        DFS(currentY, currentX, wallBeakerRem, 0, 0, world.getAgents().get(mySide).getHealth(), dir);
-
-        new BFSinWorld(world, world.getAgents().get(mySide), enemyCell, myCell).doBfs();
-
-        System.out.println("Decide");
-
-        if (world.getScores().get(mySide) <= world.getScores().get(otherSide))
-            HeadToHeadCheck(currentX, currentY);
+//        BFSinWorld bfs = new BFSinWorld(world, world.getAgents().get(mySide), enemyCell, myCell);
+        DFS(currentY, currentX, wallbrakerCool, 0, 0, world.getAgents().get(mySide).getHealth(), dir);
 
         WallBeakerCheck(currentX, currentY);
 
         changeDirection(dir);
     }
 
-    private void HeadToHeadCheck(int currentX, int currentY) {
-        if (dir == EDirection.Down) currentY += 1;
-        if (dir == EDirection.Up) currentY -= 1;
-        if (dir == EDirection.Right) currentX += 1;
-        if (dir == EDirection.Left) currentX -= 1;
-
-        if ((world.getAgents().get(otherSide).getPosition().getY() + 1 == currentY || world.getAgents().get(otherSide).getPosition().getY() - 1 == currentY) && world.getAgents().get(otherSide).getPosition().getX() == currentX) {
-            currentX = world.getAgents().get(this.mySide).getPosition().getX();
-            currentY = world.getAgents().get(this.mySide).getPosition().getY();
-            if (dir != EDirection.Down && world.getAgents().get(mySide).getDirection() != EDirection.Up && world.getBoard().get(currentY + 1).get(currentX) == ECell.Empty)
-                dir = EDirection.Down;
-            else if (dir != EDirection.Up && world.getAgents().get(mySide).getDirection() != EDirection.Down && world.getBoard().get(currentY - 1).get(currentX) == ECell.Empty)
-                dir = EDirection.Up;
-            else if (dir != EDirection.Left && world.getAgents().get(mySide).getDirection() != EDirection.Right && world.getBoard().get(currentY).get(currentX - 1) == ECell.Empty)
-                dir = EDirection.Left;
-            else if (dir != EDirection.Right && world.getAgents().get(mySide).getDirection() != EDirection.Left && world.getBoard().get(currentY).get(currentX + 1) == ECell.Empty)
-                dir = EDirection.Right;
-            return;
-        }
-        if ((world.getAgents().get(otherSide).getPosition().getX() + 1 == currentX || world.getAgents().get(otherSide).getPosition().getX() - 1 == currentX) && world.getAgents().get(otherSide).getPosition().getY() == currentY) {
-            currentX = world.getAgents().get(this.mySide).getPosition().getX();
-            currentY = world.getAgents().get(this.mySide).getPosition().getY();
-            if (dir != EDirection.Down && world.getAgents().get(mySide).getDirection() != EDirection.Up && world.getBoard().get(currentY + 1).get(currentX) == ECell.Empty)
-                dir = EDirection.Down;
-            else if (dir != EDirection.Up && world.getAgents().get(mySide).getDirection() != EDirection.Down && world.getBoard().get(currentY - 1).get(currentX) == ECell.Empty)
-                dir = EDirection.Up;
-            else if (dir != EDirection.Left && world.getAgents().get(mySide).getDirection() != EDirection.Right && world.getBoard().get(currentY).get(currentX - 1) == ECell.Empty)
-                dir = EDirection.Left;
-            else if (dir != EDirection.Right && world.getAgents().get(mySide).getDirection() != EDirection.Left && world.getBoard().get(currentY).get(currentX + 1) == ECell.Empty)
-                dir = EDirection.Right;
-            return;
-        }
-
-        if ((world.getAgents().get(otherSide).getPosition().getY() + 1 == currentY || world.getAgents().get(otherSide).getPosition().getY() - 1 == currentY) && world.getAgents().get(otherSide).getPosition().getX() == currentX) {
-            currentX = world.getAgents().get(this.mySide).getPosition().getX();
-            currentY = world.getAgents().get(this.mySide).getPosition().getY();
-            if (dir != EDirection.Down && world.getAgents().get(mySide).getDirection() != EDirection.Up && world.getBoard().get(currentY + 1).get(currentX) != ECell.AreaWall)
-                dir = EDirection.Down;
-            else if (dir != EDirection.Up && world.getAgents().get(mySide).getDirection() != EDirection.Down && world.getBoard().get(currentY - 1).get(currentX) != ECell.AreaWall)
-                dir = EDirection.Up;
-            else if (dir != EDirection.Left && world.getAgents().get(mySide).getDirection() != EDirection.Right && world.getBoard().get(currentY).get(currentX - 1) != ECell.AreaWall)
-                dir = EDirection.Left;
-            else if (dir != EDirection.Right && world.getAgents().get(mySide).getDirection() != EDirection.Left && world.getBoard().get(currentY).get(currentX + 1) != ECell.AreaWall)
-                dir = EDirection.Right;
-            return;
-        }
-        if ((world.getAgents().get(otherSide).getPosition().getX() + 1 == currentX || world.getAgents().get(otherSide).getPosition().getX() - 1 == currentX) && world.getAgents().get(otherSide).getPosition().getY() == currentY) {
-            currentX = world.getAgents().get(this.mySide).getPosition().getX();
-            currentY = world.getAgents().get(this.mySide).getPosition().getY();
-            if (dir != EDirection.Down && world.getAgents().get(mySide).getDirection() != EDirection.Up && world.getBoard().get(currentY + 1).get(currentX) != ECell.AreaWall)
-                dir = EDirection.Down;
-            else if (dir != EDirection.Up && world.getAgents().get(mySide).getDirection() != EDirection.Down && world.getBoard().get(currentY - 1).get(currentX) != ECell.AreaWall)
-                dir = EDirection.Up;
-            else if (dir != EDirection.Left && world.getAgents().get(mySide).getDirection() != EDirection.Right && world.getBoard().get(currentY).get(currentX - 1) != ECell.AreaWall)
-                dir = EDirection.Left;
-            else if (dir != EDirection.Right && world.getAgents().get(mySide).getDirection() != EDirection.Left && world.getBoard().get(currentY).get(currentX + 1) != ECell.AreaWall)
-                dir = EDirection.Right;
-            return;
-        }
-        return;
-    }
 
     private void WallBeakerCheck(int currentX, int currentY) {
         if (dir == EDirection.Up && world.getBoard().get(currentY - 1).get(currentX) != ECell.Empty)
@@ -148,63 +67,57 @@ public class AI extends RealtimeAI<World, KSObject> {
             ActivateWallBreaker();
     }
 
-    public int DFS(int locationY, int locationX, int wallBrakeRem, int score, int movesCnt,
+    public int DFS(int locationY, int locationX, int wallBrakeCool, int score, int movesCnt,
                    int health, EDirection lastDirection) {
-        if (locationX < 1 || locationX >= world.getBoard().get(0).size() ||
-                locationY < 1 || locationY >= world.getBoard().size())
-            return -1;
-
-        if (world.getBoard().get(locationY).get(locationX) == ECell.AreaWall) {
-            return 0;
-        }
 
         if (movesCnt == 12) {
             if (world.getBoard().get(locationY).get(locationX) != ECell.Empty)
-                return -3000;
+                return score - 80;
             return score;
         }
-
-        if (wallBrakeRem > 0 && (world.getBoard().get(locationY).get(locationX) != ECell.Empty || wallBrakeRem < world.getConstants().getWallBreakerDuration()))
-            --wallBrakeRem;
-        else if (health > 0 && world.getBoard().get(locationY).get(locationX) != ECell.Empty) {
-            --health;
-            score -= 15;
+        if (locationY == world.getAgents().get(otherSide).getPosition().getY() && locationX == world.getAgents().get(otherSide).getPosition().getX()) {
+            if (movesCnt <= 3) return score + 10;
+            if (world.getScores().get(mySide) > world.getScores().get(otherSide)) return score + 3;
+            else return score - 40;
         }
 
-        if (health == 0) {
-            if (world.getBoard().get(locationY).get(locationX) == enemyCell)
-                score += world.getConstants().getEnemyWallCrashScore();
-            else score += world.getConstants().getMyWallCrashScore();
-            return score;
+        if (movesCnt != 0) {
+            if (wallBrakeCool < 12 || world.getBoard().get(locationY).get(locationX) != ECell.Empty) --wallBrakeCool;
+            if (wallBrakeCool == -1) wallBrakeCool = 12;
+
+            if (wallBrakeCool < 6 && health > 0 && world.getBoard().get(locationY).get(locationX) != ECell.Empty) {
+                --health;
+                score -= 20;
+            }
+            if (health == 0) {
+                if (world.getBoard().get(locationY).get(locationX) == enemyCell)
+                    score += world.getConstants().getEnemyWallCrashScore();
+                else score += world.getConstants().getMyWallCrashScore();
+                return score;
+            }
+
+            if (world.getBoard().get(locationY).get(locationX) == enemyCell) score += 3;
+            if (world.getBoard().get(locationY).get(locationX) == ECell.Empty) score += 1;
+            if (world.getBoard().get(locationY).get(locationX) == myCell) score -= 1;
+
+            int dist = Math.abs(world.getAgents().get(otherSide).getPosition().getY() - locationY) + Math.abs(world.getAgents().get(otherSide).getPosition().getX() - locationX);
+            if (world.getScores().get(mySide) <= world.getScores().get(otherSide) && dist <= 1)
+                return score - 20;
         }
 
         int down = -30000, up = -30000, right = -30000, left = -30000;
 
-        // change score
-        if (world.getBoard().get(locationY).get(locationX) == enemyCell) score += 6;
-        if (world.getBoard().get(locationY).get(locationX) == ECell.Empty) score += 1;
-        if (world.getBoard().get(locationY).get(locationX) == myCell) score -= 1;
+        if (lastDirection != EDirection.Up && world.getBoard().get(locationY + 1).get(locationX) != ECell.AreaWall)
+            down = DFS(locationY + 1, locationX, wallBrakeCool, score, movesCnt + 1, health, EDirection.Down);
 
+        if (lastDirection != EDirection.Down && world.getBoard().get(locationY - 1).get(locationX) != ECell.AreaWall)
+            up = DFS(locationY - 1, locationX, wallBrakeCool, score, movesCnt + 1, health, EDirection.Up);
 
-        // check down
-        if (lastDirection != EDirection.Up && world.getBoard().get(locationY + 1).get(locationX) != ECell.AreaWall) {
-            down = DFS(locationY + 1, locationX, wallBrakeRem, score, movesCnt + 1, health, EDirection.Down);
-        }
+        if (lastDirection != EDirection.Left && world.getBoard().get(locationY).get(locationX + 1) != ECell.AreaWall)
+            right = DFS(locationY, locationX + 1, wallBrakeCool, score, movesCnt + 1, health, EDirection.Right);
 
-        //check up
-        if (lastDirection != EDirection.Down && world.getBoard().get(locationY - 1).get(locationX) != ECell.AreaWall) {
-            up = DFS(locationY - 1, locationX, wallBrakeRem, score, movesCnt + 1, health, EDirection.Up);
-        }
-
-        //check right
-        if (lastDirection != EDirection.Left && world.getBoard().get(locationY).get(locationX + 1) != ECell.AreaWall) {
-            right = DFS(locationY, locationX + 1, wallBrakeRem, score, movesCnt + 1, health, EDirection.Right);
-        }
-
-        //check left
-        if (lastDirection != EDirection.Right && world.getBoard().get(locationY).get(locationX - 1) != ECell.AreaWall) {
-            left = DFS(locationY, locationX - 1, wallBrakeRem, score, movesCnt + 1, health, EDirection.Left);
-        }
+        if (lastDirection != EDirection.Right && world.getBoard().get(locationY).get(locationX - 1) != ECell.AreaWall)
+            left = DFS(locationY, locationX - 1, wallBrakeCool, score, movesCnt + 1, health, EDirection.Left);
 
         if (movesCnt == 0) DFSDirection(up, down, left, right);
 
@@ -214,6 +127,7 @@ public class AI extends RealtimeAI<World, KSObject> {
 
     private void DFSDirection(int up, int down, int left, int right) {
         EDirection nearestEnemyDir = findNearestEnemyWall(world.getAgents().get(mySide).getPosition().getX(), world.getAgents().get(mySide).getPosition().getY());
+        System.out.println(currentCycle + " " + up + " " + down + " " + right + " " + left);
 
         if (up >= maxFour(up, right, down, left) && nearestEnemyDir == EDirection.Up) {
             dir = EDirection.Up;
