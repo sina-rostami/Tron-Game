@@ -65,6 +65,7 @@ public class AI extends RealtimeAI<World, KSObject> {
         int[] arr = NearestEnemyWall(currentX, currentY);
         System.out.println(arr[0] + " , " + arr[1]);
 
+        System.out.println("Decide");
 
         if (world.getScores().get(mySide) <= world.getScores().get(otherSide))
             HeadToHeadCheck(currentX, currentY);
@@ -157,7 +158,7 @@ public class AI extends RealtimeAI<World, KSObject> {
             return 0;
         }
 
-        if (movesCnt == 13) {
+        if (movesCnt == 12) {
             if (world.getBoard().get(locationY).get(locationX) != ECell.Empty)
                 return -3000;
             return score;
@@ -182,7 +183,7 @@ public class AI extends RealtimeAI<World, KSObject> {
         // change score
         if (world.getBoard().get(locationY).get(locationX) == enemyCell) score += 6;
         if (world.getBoard().get(locationY).get(locationX) == ECell.Empty) score += 1;
-        if (world.getBoard().get(locationY).get(locationX) == myCell) score -= 2;
+        if (world.getBoard().get(locationY).get(locationX) == myCell) score -= 1;
 
 
         // check down
@@ -237,22 +238,40 @@ public class AI extends RealtimeAI<World, KSObject> {
 
 
     private int[] NearestEnemyWall(int currentX, int currentY) {
+        boolean[][] seen = new boolean[world.getBoard().size()][world.getBoard().get(0).size()];
+        ArrayList<int[]> queue = new ArrayList<>();
 
-        ArrayList<ECell> queue = new ArrayList<>();
-
-        queue.add(world.getBoard().get(currentY).get(currentX));
-
+        queue.add(new int[]{currentX, currentY});
 
         while (!queue.isEmpty()) {
-            if (queue.get(0) == enemyCell) {
+            int[] current = queue.get(0);
+            seen[current[1]][current[0]] = true;
 
-                // done
+            if (world.getBoard().get(queue.get(0)[1]).get(queue.get(0)[0]) == enemyCell) {
+                return queue.get(0);
             }
 
 
+            queue.remove(0);
+
+            if (current[1] > 1 && !seen[current[1] - 1][current[0]] && world.getBoard().get(current[1] - 1).get(current[0]) != ECell.AreaWall) {
+                queue.add(new int[]{current[0], current[1] - 1});
+                seen[current[1] - 1][current[0]] = true;
+            }
+            if (current[0] > 1 && !seen[current[1]][current[0] - 1] && world.getBoard().get(current[1]).get(current[0] - 1) != ECell.AreaWall) {
+                queue.add(new int[]{current[0] - 1, current[1]});
+                seen[current[1]][current[0] - 1] = true;
+            }
+            if (current[1] < world.getBoard().size() - 1 && !seen[current[1] + 1][current[0]] && world.getBoard().get(current[1] + 1).get(current[0]) != ECell.AreaWall) {
+                queue.add(new int[]{current[0], current[1] + 1});
+                seen[current[1] + 1][current[0]] = true;
+            }
+            if (current[0] < world.getBoard().get(0).size() - 1 && !seen[current[1]][current[0] + 1] && world.getBoard().get(current[1]).get(current[0] + 1) != ECell.AreaWall) {
+                queue.add(new int[]{current[0] + 1, current[1]});
+                seen[current[1]][current[0] + 1] = true;
+            }
+
         }
-
-
         return null;
     }
 
