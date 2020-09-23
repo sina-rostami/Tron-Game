@@ -24,7 +24,7 @@ public class BFSinWorld {
 
     public void doBfs() {
         int cnt = 0;
-        String[] directions = {"U", "D", "R", "L" };
+        String[] directions = {"U", "D", "R", "L"};
         String currentDir = "";
         queue.add("");
         while (!foundEnd(currentDir)) {
@@ -63,6 +63,7 @@ public class BFSinWorld {
                 default:
                     break;
             }
+
         }
         if(iIndex < 1 || iIndex >= world.getBoard().size() - 1 ||
                 jIndex < 1 || jIndex >= world.getBoard().get(0).size() - 1 ||
