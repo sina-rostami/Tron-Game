@@ -38,6 +38,7 @@ public class AI extends RealtimeAI<World, KSObject> {
     // todo : add bfs to find nearest enemy wall
     // todo : best first search
     // todo : go to more empty places
+    // todo : add go for enemy in dfs
 
 
     @Override
@@ -80,8 +81,6 @@ public class AI extends RealtimeAI<World, KSObject> {
             return score;
         }
         if (locationY == world.getAgents().get(otherSide).getPosition().getY() && locationX == world.getAgents().get(otherSide).getPosition().getX()) {
-            if (movesCnt <= 3 && world.getScores().get(mySide) > world.getScores().get(otherSide) + 12)
-                return score + 20;
             if (world.getScores().get(mySide) > world.getScores().get(otherSide)) return score + 3;
             else return score - 40;
         }
