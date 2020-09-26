@@ -30,8 +30,9 @@ public class AI extends RealtimeAI<World, KSObject> {
         changeDirection(dir);
         enemyCell = mySide.equals("Yellow") ? ECell.BlueWall : ECell.YellowWall;
         myCell = mySide.equals("Yellow") ? ECell.YellowWall : ECell.BlueWall;
-
         System.out.println("initialize");
+
+        //System.out.println(world.getConstants().getWallBreakerDuration());
     }
 
 
@@ -45,6 +46,7 @@ public class AI extends RealtimeAI<World, KSObject> {
         dir = world.getAgents().get(mySide).getDirection();
 
         DFS(currentY, currentX, wallbrakerCool, 0, 0, world.getAgents().get(mySide).getHealth(), dir);
+
 
         WallBeakerCheck(currentX, currentY);
 
@@ -131,7 +133,7 @@ public class AI extends RealtimeAI<World, KSObject> {
 
     private void DFSDirection(int up, int down, int left, int right) {
         EDirection nearestEnemyDir = findNearestEnemyWall(world.getAgents().get(mySide).getPosition().getX(), world.getAgents().get(mySide).getPosition().getY());
-        System.out.println(currentCycle + " " + up + " " + down + " " + right + " " + left);
+        //System.out.println(currentCycle + " " + up + " " + down + " " + right + " " + left);
 
         if (up >= maxFour(up, right, down, left) && nearestEnemyDir == EDirection.Up) {
             dir = EDirection.Up;
