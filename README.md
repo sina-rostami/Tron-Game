@@ -19,3 +19,8 @@
 ```
 2. $ sh run.sh
 ```
+3. open monitor and set : 
+```
+ip : localhost
+port : 5001
+```
