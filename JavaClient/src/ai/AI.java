@@ -34,9 +34,7 @@ public class AI extends RealtimeAI<World, KSObject> {
 
         //System.out.println(world.getConstants().getWallBreakerDuration());
     }
-    // todo : add bfs to find nearest enemy wall
-    // todo : best first search
-    // todo : go to more empty places
+
 
     @Override
     public void decide() {
@@ -47,13 +45,19 @@ public class AI extends RealtimeAI<World, KSObject> {
             wallbrakerCool = 12;
         dir = world.getAgents().get(mySide).getDirection();
 
-        //BFSinWorld bfs = new BFSinWorld(world, world.getAgents().get(mySide), enemyCell, myCell);
-        //dir = bfs.doBfs();
         DFS(currentY, currentX, wallbrakerCool, 0, 0, world.getAgents().get(mySide).getHealth(), dir);
 
 
         WallBeakerCheck(currentX, currentY);
 
+        if (world.getAgents().get(otherSide).getDirection() == EDirection.Down && otherSide.equals("Blue") && currentCycle < 20 && world.getBoard().get(currentY - 1).get(currentX) == ECell.Empty)
+            dir = EDirection.Up;
+        if (world.getAgents().get(otherSide).getDirection() == EDirection.Right && otherSide.equals("Blue") && currentCycle < 20 && world.getBoard().get(currentY).get(currentX - 1) == ECell.Empty)
+            dir = EDirection.Left;
+        if (world.getAgents().get(otherSide).getDirection() == EDirection.Up && otherSide.equals("Yellow") && currentCycle < 20 && world.getBoard().get(currentY + 1).get(currentX) == ECell.Empty)
+            dir = EDirection.Down;
+        if (world.getAgents().get(otherSide).getDirection() == EDirection.Left && otherSide.equals("Yellow") && currentCycle < 20 && world.getBoard().get(currentY).get(currentX + 1) == ECell.Empty)
+            dir = EDirection.Right;
         changeDirection(dir);
     }
 
@@ -103,7 +107,7 @@ public class AI extends RealtimeAI<World, KSObject> {
             if (world.getBoard().get(locationY).get(locationX) == myCell) score -= 1;
 
             int dist = Math.abs(world.getAgents().get(otherSide).getPosition().getY() - locationY) + Math.abs(world.getAgents().get(otherSide).getPosition().getX() - locationX);
-            if (world.getScores().get(mySide) <= world.getScores().get(otherSide) && dist <= 1)
+            if (world.getScores().get(mySide) < world.getScores().get(otherSide) && dist <= 1)
                 return score - 20;
         }
 
